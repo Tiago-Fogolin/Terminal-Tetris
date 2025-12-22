@@ -89,11 +89,18 @@ gravity_timer = 0
 x = 0
 y = 0
 
+game_over = False
 os.system("cls")
 while True:
     # exit the game
     if keyboard.is_pressed('q'):
         break
+
+    if game_over:
+        os.system("cls")
+        print("Game Over!")
+        break
+
 
     if get_next_piece:
         next_piece = get_random_piece(PIECE_OPTIONS)
@@ -115,9 +122,14 @@ while True:
 
     if keyboard.is_pressed('down'):
         new_y += 1
+        gravity_timer = 0
+
 
     if new_y >= y and not is_valid_move(shape, new_x, new_y, mem):
         get_next_piece = True
+        if y == 0:
+            game_over = True
+            continue
     else:
         y = new_y
 
