@@ -74,7 +74,11 @@ def clear_complete_lines(mem):
 
     return new_mem, empty_rows
 
-
+def get_y_hard_drop(shape, x, y, mem):
+    next_y = y
+    while is_valid_move(shape,x,next_y+1,mem):
+        next_y += 1
+    return next_y
 
 get_next_piece = True
 next_piece = Pieces.EMPTY
@@ -111,6 +115,10 @@ while True:
         new_mem, empty_rows = clear_complete_lines(mem)
         mem[:] = empty_rows + new_mem
 
+        if not is_valid_move(shape, x, y, mem):
+            game_over = True
+            continue
+
 
     draw_piece(shape, PIECES_CHARS[Pieces.EMPTY.value], x, y, mem)
 
@@ -124,12 +132,25 @@ while True:
         new_y += 1
         gravity_timer = 0
 
+    if keyboard.is_pressed('space'):
+        draw_piece(shape, PIECES_CHARS[Pieces.EMPTY.value], x, y, mem)
+
+        y = get_y_hard_drop(shape, x, y, mem)
+
+        draw_piece(shape, PIECES_CHARS[next_piece.value], x, y, mem)
+        get_next_piece = True
+
+        print("\033[H", end="")
+        print(draw_tetris_board(mem))
+
+        while keyboard.is_pressed('space'):
+            time.sleep(0.01)
+
+        continue
+
 
     if new_y >= y and not is_valid_move(shape, new_x, new_y, mem):
         get_next_piece = True
-        if y == 0:
-            game_over = True
-            continue
     else:
         y = new_y
 
