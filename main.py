@@ -1,4 +1,3 @@
-from operator import neg
 import keyboard
 import os
 import random
@@ -81,11 +80,6 @@ get_next_piece = True
 next_piece = Pieces.EMPTY
 
 activate_rotate = False
-
-old_shape = None
-old_x = 0
-old_y = 0
-
 add_gravity_ticks = 30
 
 shape = None
@@ -101,8 +95,17 @@ while True:
     if keyboard.is_pressed('q'):
         break
 
+    if get_next_piece:
+        next_piece = get_random_piece(PIECE_OPTIONS)
+        get_next_piece = False
+        shape = SHAPES[next_piece]
+        x, y = BOARD_WIDTH // 2 - 2, 0
 
-    old_x, old_y = x, y
+        new_mem, empty_rows = clear_complete_lines(mem)
+        mem[:] = empty_rows + new_mem
+
+
+    draw_piece(shape, PIECES_CHARS[Pieces.EMPTY.value], x, y, mem)
 
     new_x, new_y = x,y
 
@@ -113,6 +116,10 @@ while True:
     if keyboard.is_pressed('down'):
         new_y += 1
 
+    if new_y >= y and not is_valid_move(shape, new_x, new_y, mem):
+        get_next_piece = True
+    else:
+        y = new_y
 
     if keyboard.is_pressed('up'):
         activate_rotate = True
@@ -123,31 +130,11 @@ while True:
     if keyboard.is_pressed('left'):
         new_x -= 1
 
-    if get_next_piece:
-        next_piece = get_random_piece(PIECE_OPTIONS)
-        get_next_piece = False
-        shape = SHAPES[next_piece]
-        x,y = 0,0
-        new_x,new_y = 0,0
-        old_x,old_y = 0,0
-
-        new_mem, empty_rows = clear_complete_lines(mem)
-        mem[:] = empty_rows + new_mem
-
-    old_shape = shape
-
-    draw_piece(old_shape, PIECES_CHARS[Pieces.EMPTY.value], old_x, old_y, mem)
-
     if activate_rotate:
         shape = rotate(shape, SHAPE_BOXES[next_piece.value], x, y, mem)
 
-    # clear old place
     if is_valid_move(shape, new_x, new_y, mem):
-        draw_piece(shape, PIECES_CHARS[Pieces.EMPTY.value], x, y, mem)
         x, y = new_x, new_y
-    else:
-        if new_y >= y and new_x == x:
-            get_next_piece = True
 
     draw_piece(shape, PIECES_CHARS[next_piece.value], x, y, mem)
 
