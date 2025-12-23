@@ -44,15 +44,14 @@ def draw_preview_piece(preview_piece):
         posicionar_cursor(prev_y + 2, (prev_x * 2) + PREVIEW_PIECE_OFFSET)
         print(preview_piece_char)
 
-
-# change this to cursor aproach?
-# see if it enhaces performance
 def draw_tetris_board(mem):
     tetris_board = ""
     for i in range(BOARD_HEIGHT):
         tetris_board += "|"
         for j in range(BOARD_WIDTH):
             tetris_board += mem[i][j]
+            if mem[i][j] == PIECES_CHARS[Pieces.GHOST.value]:
+                mem[i][j] = PIECES_CHARS[Pieces.EMPTY.value]
         tetris_board += "|"
         tetris_board += "\n"
 
@@ -90,7 +89,7 @@ def clear_complete_lines(mem):
 
     return empty_rows + new_mem
 
-def get_y_hard_drop(shape, x, y, mem):
+def get_y_raycast(shape, x, y, mem):
     next_y = y
     while is_valid_move(shape,x,next_y+1,mem):
         next_y += 1
@@ -111,10 +110,10 @@ piece_pool = PIECE_OPTIONS.copy()
 get_next_piece = True
 next_piece = Pieces.EMPTY
 preview_piece = get_random_piece(piece_pool)
+ghost_y = 0
 os.system("cls")
 
 while True:
-
     # exit the game
     if keyboard.is_pressed('q'):
         break
@@ -156,7 +155,7 @@ while True:
     if keyboard.is_pressed('space'):
         draw_piece(shape, PIECES_CHARS[Pieces.EMPTY.value], x, y, mem)
 
-        y = get_y_hard_drop(shape, x, y, mem)
+        y = get_y_raycast(shape, x, y, mem)
 
         draw_piece(shape, PIECES_CHARS[next_piece.value], x, y, mem)
         get_next_piece = True
@@ -189,8 +188,10 @@ while True:
     if is_valid_move(shape, new_x, new_y, mem):
         x, y = new_x, new_y
 
-    draw_piece(shape, PIECES_CHARS[next_piece.value], x, y, mem)
+    ghost_y = get_y_raycast(shape,x,y,mem)
+    draw_piece(shape, PIECES_CHARS[Pieces.GHOST.value], x, ghost_y, mem)
 
+    draw_piece(shape, PIECES_CHARS[next_piece.value], x, y, mem)
     draw_tetris_board(mem)
 
     gravity_timer += 1

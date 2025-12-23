@@ -7,11 +7,12 @@ AMARELO = '\033[33m'
 ROXO = '\033[35m'
 LARANJA = '\033[38;5;208m'
 ROSA = '\033[38;5;201m'
+CINZA = '\033[90m'
 RESET = '\033[0m'
 
 BOARD_WIDTH = 10
 BOARD_HEIGHT = 20
-PREVIEW_PIECE_OFFSET = 24
+PREVIEW_PIECE_OFFSET = BOARD_WIDTH * 2 + 4
 
 class Pieces(Enum):
     EMPTY = 0
@@ -22,6 +23,7 @@ class Pieces(Enum):
     L = 5
     J = 6
     T = 7
+    GHOST = 8
 
 PIECES_CHARS = [
     "  ",
@@ -32,6 +34,7 @@ PIECES_CHARS = [
     f"{LARANJA}██{RESET}",
     f"{ROSA}██{RESET}",
     f"{ROXO}██{RESET}",
+    f"{CINZA}██{RESET}",
 ]
 
 PIECE_OPTIONS = [
