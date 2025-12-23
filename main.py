@@ -58,12 +58,16 @@ def draw_tetris_board(mem):
     print("\033[H", end="")
     print(tetris_board)
 
-# TODO -> add counter clockwise rotation
-def rotate(shape_coords, N, x, y, mem):
+
+def rotate(shape_coords, N, x, y, mem, clock_wise=True):
     new_rotated_coords = []
     for x_s, y_s in shape_coords:
-        nx = (N - 1) - y_s
-        ny = x_s
+        if clock_wise:
+            nx = (N - 1) - y_s
+            ny = x_s
+        else:
+            ny = (N - 1) - x_s
+            nx = y_s
         new_rotated_coords.append((nx, ny))
 
     if is_valid_move(new_rotated_coords, x, y, mem):
@@ -96,15 +100,13 @@ def get_y_raycast(shape, x, y, mem):
     return next_y
 
 
-activate_rotate = False
 add_gravity_ticks = 30
 
 shape = None
 
 gravity_timer = 0
 
-x = 0
-y = 0
+x,y = 0, 0
 
 piece_pool = PIECE_OPTIONS.copy()
 get_next_piece = True
@@ -171,19 +173,17 @@ while True:
     else:
         y = new_y
 
-    if keyboard.is_pressed('up'):
-        activate_rotate = True
-
-
     if keyboard.is_pressed('right'):
         new_x += 1
 
     if keyboard.is_pressed('left'):
         new_x -= 1
 
-    if activate_rotate:
-        shape = rotate(shape, SHAPE_BOXES[next_piece.value], x, y, mem)
-        activate_rotate = False
+    if keyboard.is_pressed('up'):
+        shape = rotate(shape, SHAPE_BOXES[next_piece.value], x, y, mem, clock_wise=True)
+
+    if keyboard.is_pressed('z'):
+        shape = rotate(shape, SHAPE_BOXES[next_piece.value], x, y, mem, clock_wise=False)
 
     if is_valid_move(shape, new_x, new_y, mem):
         x, y = new_x, new_y
