@@ -11,6 +11,7 @@ RESET = '\033[0m'
 
 BOARD_WIDTH = 10
 BOARD_HEIGHT = 20
+PREVIEW_PIECE_OFFSET = 24
 
 class Pieces(Enum):
     EMPTY = 0
@@ -38,6 +39,7 @@ PIECE_OPTIONS = [
     Pieces.SQUARE,
     Pieces.S,
     Pieces.Z,
+    Pieces.L,
     Pieces.J,
     Pieces.T,
 ]

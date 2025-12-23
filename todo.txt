@@ -1,0 +1,10 @@
+# Preview da proxima peça
+# Rotação anti-horaria
+# Pontuação (talvez salvar high score?)
+
+# Depois disso CLEAN UP
+
+
+# TODO -> add a wraper to key_pressed
+        # so we can add a counter, and pressing the same key
+        # doesnt stop the game
