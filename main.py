@@ -2,7 +2,8 @@ import keyboard
 import os
 import random
 import time
-from utils import BOARD_WIDTH, BOARD_HEIGHT, Pieces, PIECES_CHARS, PIECE_OPTIONS, SHAPES, SHAPE_BOXES, PREVIEW_PIECE_OFFSET
+from utils import BOARD_WIDTH, BOARD_HEIGHT, HOLDING_PIECE_OFFSET, Pieces, PIECES_CHARS, PIECE_OPTIONS, SHAPES, SHAPE_BOXES, \
+                    PREVIEW_PIECE_OFFSET, LEFT_PADDING
 
 mem = [[PIECES_CHARS[Pieces.EMPTY.value] for i in range(BOARD_WIDTH)] for i in range(BOARD_HEIGHT)]
 
@@ -10,7 +11,6 @@ def get_random_piece(options):
     selected = random.choice(options)
     options.remove(selected)
     return selected
-
 
 def is_valid_move(shape, x, y, mem):
     for x_draw, y_draw in shape:
@@ -32,32 +32,31 @@ def draw_piece(shape, char, x, y, mem):
 def posicionar_cursor(linha, coluna):
     print(f"\033[{linha};{coluna}H", end="")
 
-def draw_preview_piece(preview_piece):
+def draw_standalone_piece(preview_piece, offset):
     # clear previews preview
     for y in range(4):
-        posicionar_cursor(y + 2, PREVIEW_PIECE_OFFSET)
+        posicionar_cursor(y + 2, offset)
         print("        ")
 
     preview_piece_shape = SHAPES[preview_piece]
     preview_piece_char = PIECES_CHARS[preview_piece.value]
     for prev_x, prev_y in preview_piece_shape:
-        posicionar_cursor(prev_y + 2, (prev_x * 2) + PREVIEW_PIECE_OFFSET)
+        posicionar_cursor(prev_y + 2, (prev_x * 2) + offset)
         print(preview_piece_char)
 
 def draw_tetris_board(mem):
-    tetris_board = ""
     for i in range(BOARD_HEIGHT):
-        tetris_board += "|"
+        posicionar_cursor(i + 1, LEFT_PADDING)
+
+        linha_str = "|"
         for j in range(BOARD_WIDTH):
-            tetris_board += mem[i][j]
-            if mem[i][j] == PIECES_CHARS[Pieces.GHOST.value]:
+            char = mem[i][j]
+            linha_str += char
+            if char == PIECES_CHARS[Pieces.GHOST.value]:
                 mem[i][j] = PIECES_CHARS[Pieces.EMPTY.value]
-        tetris_board += "|"
-        tetris_board += "\n"
 
-    print("\033[H", end="")
-    print(tetris_board)
-
+        linha_str += "|"
+        print(linha_str)
 
 def rotate(shape_coords, N, x, y, mem, clock_wise=True):
     new_rotated_coords = []
@@ -107,12 +106,13 @@ shape = None
 gravity_timer = 0
 
 x,y = 0, 0
+ghost_y = 0
 
 piece_pool = PIECE_OPTIONS.copy()
 get_next_piece = True
 next_piece = Pieces.EMPTY
+holding_piece = None
 preview_piece = get_random_piece(piece_pool)
-ghost_y = 0
 os.system("cls")
 
 while True:
@@ -127,7 +127,7 @@ while True:
         next_piece = preview_piece
 
         preview_piece = get_random_piece(piece_pool)
-        draw_preview_piece(preview_piece)
+        draw_standalone_piece(preview_piece, PREVIEW_PIECE_OFFSET)
 
         shape = SHAPES[next_piece]
         x, y = BOARD_WIDTH // 2 - 2, 0
@@ -141,6 +141,23 @@ while True:
             break
 
         get_next_piece = False
+
+    if keyboard.is_pressed('c'):
+        draw_piece(shape, PIECES_CHARS[Pieces.EMPTY.value], x, y, mem)
+
+        if holding_piece is None:
+            holding_piece = next_piece
+            get_next_piece = True
+        else:
+            holding_piece, next_piece = next_piece, holding_piece
+            shape = SHAPES[next_piece]
+
+        draw_standalone_piece(holding_piece, HOLDING_PIECE_OFFSET)
+
+        while keyboard.is_pressed('c'):
+            time.sleep(0.01)
+
+        continue
 
     draw_piece(shape, PIECES_CHARS[Pieces.EMPTY.value], x, y, mem)
 
@@ -181,8 +198,7 @@ while True:
 
     if keyboard.is_pressed('up'):
         shape = rotate(shape, SHAPE_BOXES[next_piece.value], x, y, mem, clock_wise=True)
-
-    if keyboard.is_pressed('z'):
+    elif keyboard.is_pressed('z'):
         shape = rotate(shape, SHAPE_BOXES[next_piece.value], x, y, mem, clock_wise=False)
 
     if is_valid_move(shape, new_x, new_y, mem):
