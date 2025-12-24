@@ -3,6 +3,7 @@ import keyboard
 import os
 import random
 import time
+import atexit
 import sys
 from utils import BOARD_WIDTH, BOARD_HEIGHT, HOLDING_PIECE_OFFSET, Pieces, PIECES_CHARS, PIECE_OPTIONS, SHAPES, SHAPE_BOXES, \
                     PREVIEW_PIECE_OFFSET, LEFT_PADDING, KEY_DELAY
@@ -10,6 +11,14 @@ from utils import BOARD_WIDTH, BOARD_HEIGHT, HOLDING_PIECE_OFFSET, Pieces, PIECE
 mem = [[PIECES_CHARS[Pieces.EMPTY.value] for i in range(BOARD_WIDTH)] for i in range(BOARD_HEIGHT)]
 
 print = sys.stdout.write
+
+def hide_cursor():
+    print("\033[?25l")
+    sys.stdout.flush()
+
+def show_cursor():
+    print("\033[?25h")
+    sys.stdout.flush()
 
 def get_random_piece(options):
     selected = random.choice(options)
@@ -132,6 +141,10 @@ get_next_piece = True
 next_piece = Pieces.EMPTY
 holding_piece = None
 preview_piece = get_random_piece(piece_pool)
+
+
+atexit.register(show_cursor)
+hide_cursor()
 os.system("cls")
 last_time = time.perf_counter()
 while True:
