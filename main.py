@@ -151,6 +151,8 @@ while True:
         else:
             holding_piece, next_piece = next_piece, holding_piece
             shape = SHAPES[next_piece]
+            x, y = BOARD_WIDTH // 2 - 2, 0
+
 
         draw_standalone_piece(holding_piece, HOLDING_PIECE_OFFSET)
 
@@ -197,9 +199,9 @@ while True:
         new_x -= 1
 
     if keyboard.is_pressed('up'):
-        shape = rotate(shape, SHAPE_BOXES[next_piece.value], x, y, mem, clock_wise=True)
+        shape = rotate(shape, SHAPE_BOXES[next_piece.value], new_x, new_y, mem, clock_wise=True)
     elif keyboard.is_pressed('z'):
-        shape = rotate(shape, SHAPE_BOXES[next_piece.value], x, y, mem, clock_wise=False)
+        shape = rotate(shape, SHAPE_BOXES[next_piece.value], new_x, new_y, mem, clock_wise=False)
 
     if is_valid_move(shape, new_x, new_y, mem):
         x, y = new_x, new_y
