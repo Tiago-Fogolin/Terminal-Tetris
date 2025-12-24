@@ -16,6 +16,9 @@ LEFT_PADDING = 20
 PREVIEW_PIECE_OFFSET = BOARD_WIDTH * 2 + LEFT_PADDING + 8
 HOLDING_PIECE_OFFSET = 10
 
+# TODO -> Add per-piece delay
+DEFAULT_KEY_DELAY = 0.1
+
 class Pieces(Enum):
     EMPTY = 0
     LINE = 1

@@ -3,7 +3,7 @@ import os
 import random
 import time
 from utils import BOARD_WIDTH, BOARD_HEIGHT, HOLDING_PIECE_OFFSET, Pieces, PIECES_CHARS, PIECE_OPTIONS, SHAPES, SHAPE_BOXES, \
-                    PREVIEW_PIECE_OFFSET, LEFT_PADDING
+                    PREVIEW_PIECE_OFFSET, LEFT_PADDING, DEFAULT_KEY_DELAY
 
 mem = [[PIECES_CHARS[Pieces.EMPTY.value] for i in range(BOARD_WIDTH)] for i in range(BOARD_HEIGHT)]
 
@@ -99,7 +99,16 @@ def get_y_raycast(shape, x, y, mem):
     return next_y
 
 
-add_gravity_ticks = 30
+gravity_speed = 0.5
+key_delays = {
+    'c': 0.,
+    'space': 0.,
+    'right': 0.,
+    'left': 0.,
+    'up': 0.,
+    'z': 0.,
+    'down': 0.
+}
 
 shape = None
 
@@ -114,11 +123,19 @@ next_piece = Pieces.EMPTY
 holding_piece = None
 preview_piece = get_random_piece(piece_pool)
 os.system("cls")
-
+last_time = time.perf_counter()
 while True:
+    current_time = time.perf_counter()
+    dt = current_time - last_time
+    last_time = current_time
+
     # exit the game
     if keyboard.is_pressed('q'):
         break
+
+    for key in key_delays:
+        if key_delays[key] > 0:
+            key_delays[key] -= dt
 
     if not piece_pool:
         piece_pool = PIECE_OPTIONS.copy()
@@ -142,7 +159,8 @@ while True:
 
         get_next_piece = False
 
-    if keyboard.is_pressed('c'):
+    if keyboard.is_pressed('c') and key_delays['c'] <= 0:
+        key_delays['c'] = DEFAULT_KEY_DELAY
         draw_piece(shape, PIECES_CHARS[Pieces.EMPTY.value], x, y, mem)
 
         if holding_piece is None:
@@ -156,33 +174,30 @@ while True:
 
         draw_standalone_piece(holding_piece, HOLDING_PIECE_OFFSET)
 
-        while keyboard.is_pressed('c'):
-            time.sleep(0.01)
-
         continue
 
     draw_piece(shape, PIECES_CHARS[Pieces.EMPTY.value], x, y, mem)
 
     new_x, new_y = x,y
 
-    if gravity_timer >= add_gravity_ticks:
+    if gravity_timer >= gravity_speed:
         gravity_timer = 0
         new_y += 1
 
-    if keyboard.is_pressed('down'):
+    if keyboard.is_pressed('down') and key_delays['down'] <= 0:
+        key_delays['down'] = DEFAULT_KEY_DELAY
         new_y += 1
         gravity_timer = 0
 
-    if keyboard.is_pressed('space'):
+    if keyboard.is_pressed('space') and key_delays['space'] <= 0:
+        key_delays['space'] = DEFAULT_KEY_DELAY
+
         draw_piece(shape, PIECES_CHARS[Pieces.EMPTY.value], x, y, mem)
 
         y = get_y_raycast(shape, x, y, mem)
 
         draw_piece(shape, PIECES_CHARS[next_piece.value], x, y, mem)
         get_next_piece = True
-
-        while keyboard.is_pressed('space'):
-            time.sleep(0.01)
 
         continue
 
@@ -192,15 +207,19 @@ while True:
     else:
         y = new_y
 
-    if keyboard.is_pressed('right'):
+    if keyboard.is_pressed('right') and key_delays['right'] <= 0:
+        key_delays['right'] = DEFAULT_KEY_DELAY
         new_x += 1
 
-    if keyboard.is_pressed('left'):
+    if keyboard.is_pressed('left') and key_delays['left'] <= 0:
+        key_delays['left'] = DEFAULT_KEY_DELAY
         new_x -= 1
 
-    if keyboard.is_pressed('up'):
+    if keyboard.is_pressed('up') and key_delays['up'] <= 0:
+        key_delays['up'] = DEFAULT_KEY_DELAY
         shape = rotate(shape, SHAPE_BOXES[next_piece.value], new_x, new_y, mem, clock_wise=True)
-    elif keyboard.is_pressed('z'):
+    elif keyboard.is_pressed('z') and key_delays['z'] <= 0:
+        key_delays['z'] = DEFAULT_KEY_DELAY
         shape = rotate(shape, SHAPE_BOXES[next_piece.value], new_x, new_y, mem, clock_wise=False)
 
     if is_valid_move(shape, new_x, new_y, mem):
@@ -212,6 +231,6 @@ while True:
     draw_piece(shape, PIECES_CHARS[next_piece.value], x, y, mem)
     draw_tetris_board(mem)
 
-    gravity_timer += 1
+    gravity_timer += dt
 
-    time.sleep(0.065)
+    time.sleep(0.001)
