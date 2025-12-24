@@ -26,6 +26,14 @@ KEY_DELAY = {
     'down': 0.1
 }
 
+LINE_POINTS = {
+    0: 0,
+    1: 100,
+    2: 300,
+    3: 500,
+    4: 800
+}
+
 class Pieces(Enum):
     EMPTY = 0
     LINE = 1

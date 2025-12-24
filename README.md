@@ -1,5 +1,5 @@
 # Terminal Tetris
-Esse projeto é um tetris de terminal feito em python, sem dependências externas.
+Esse projeto é um tetris de terminal feito em python, com o mínimo de dependências externas (atualmente somente a biblioteca keyboard).
 
 A ideia era fazer um jogo simples de forma procedural, sem grandes complicações.
 

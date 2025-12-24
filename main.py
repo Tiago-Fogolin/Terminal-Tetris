@@ -5,8 +5,8 @@ import random
 import time
 import atexit
 import sys
-from utils import BOARD_WIDTH, BOARD_HEIGHT, HOLDING_PIECE_OFFSET, Pieces, PIECES_CHARS, PIECE_OPTIONS, SHAPES, SHAPE_BOXES, \
-                    PREVIEW_PIECE_OFFSET, LEFT_PADDING, KEY_DELAY
+from utils import Pieces, BOARD_WIDTH, BOARD_HEIGHT, HOLDING_PIECE_OFFSET, PIECES_CHARS, PIECE_OPTIONS, SHAPES, SHAPE_BOXES, \
+                    PREVIEW_PIECE_OFFSET, LEFT_PADDING, KEY_DELAY, LINE_POINTS
 
 mem = [[PIECES_CHARS[Pieces.EMPTY.value] for i in range(BOARD_WIDTH)] for i in range(BOARD_HEIGHT)]
 
@@ -45,17 +45,21 @@ def draw_piece(shape, char, x, y, mem):
 def posicionar_cursor(linha, coluna):
     print(f"\033[{linha};{coluna}H")
 
-def draw_standalone_piece(preview_piece, offset, y_max=4):
+def draw_standalone(preview_piece, offset_x=0, offset_y=0, y_max=4):
     # clear previews preview
     for y in range(y_max):
-        posicionar_cursor(y + 2, offset)
+        posicionar_cursor(y + 2, offset_x)
         print("        ")
 
     preview_piece_shape = SHAPES[preview_piece]
     preview_piece_char = PIECES_CHARS[preview_piece.value]
     for prev_x, prev_y in preview_piece_shape:
-        posicionar_cursor(prev_y + 2, (prev_x * 2) + offset)
+        posicionar_cursor(prev_y + offset_y + 2, (prev_x * 2) + offset_x)
         print(preview_piece_char)
+
+def draw_text(text, x, y):
+    posicionar_cursor(y + 2, x * 2)
+    print(text)
 
 def draw_tetris_board(mem):
     for i in range(BOARD_HEIGHT):
@@ -100,10 +104,11 @@ def clear_complete_lines(mem):
             new_mem.append(list(mem[i]))
 
     lines_cleared = BOARD_HEIGHT - len(new_mem)
+    add_score = LINE_POINTS[lines_cleared]
 
     empty_rows = [[PIECES_CHARS[Pieces.EMPTY.value] for _ in range(BOARD_WIDTH)] for _ in range(lines_cleared)]
 
-    return empty_rows + new_mem
+    return empty_rows + new_mem, add_score
 
 def get_y_raycast(shape, x, y, mem):
     next_y = y
@@ -131,6 +136,7 @@ key_delays = {
 
 shape = None
 
+score = 0
 gravity_timer = 0
 
 x,y = 0, 0
@@ -148,6 +154,7 @@ hide_cursor()
 os.system("cls")
 last_time = time.perf_counter()
 while True:
+
     current_time = time.perf_counter()
     dt = current_time - last_time
     last_time = current_time
@@ -167,12 +174,16 @@ while True:
         next_piece = preview_piece
 
         preview_piece = get_random_piece(piece_pool)
-        draw_standalone_piece(preview_piece, PREVIEW_PIECE_OFFSET)
+        draw_standalone(preview_piece, PREVIEW_PIECE_OFFSET)
 
         shape = SHAPES[next_piece]
         x, y = BOARD_WIDTH // 2 - 2, 0
 
-        mem[:] = clear_complete_lines(mem)
+        mem[:], add_score = clear_complete_lines(mem)
+
+        score += add_score
+
+        draw_text(f"Score={score}", 22, 10)
 
         # check for game over
         if not is_valid_move(shape, x, y, mem):
@@ -194,7 +205,7 @@ while True:
             x, y = BOARD_WIDTH // 2 - 2, 0
 
 
-        draw_standalone_piece(holding_piece, HOLDING_PIECE_OFFSET)
+        draw_standalone(holding_piece, HOLDING_PIECE_OFFSET)
 
         continue
 
