@@ -1,9 +1,10 @@
+from tkinter.constants import TRUE
 import keyboard
 import os
 import random
 import time
 from utils import BOARD_WIDTH, BOARD_HEIGHT, HOLDING_PIECE_OFFSET, Pieces, PIECES_CHARS, PIECE_OPTIONS, SHAPES, SHAPE_BOXES, \
-                    PREVIEW_PIECE_OFFSET, LEFT_PADDING, DEFAULT_KEY_DELAY
+                    PREVIEW_PIECE_OFFSET, LEFT_PADDING, KEY_DELAY
 
 mem = [[PIECES_CHARS[Pieces.EMPTY.value] for i in range(BOARD_WIDTH)] for i in range(BOARD_HEIGHT)]
 
@@ -98,6 +99,12 @@ def get_y_raycast(shape, x, y, mem):
         next_y += 1
     return next_y
 
+def is_key_pressed(key, delay_map):
+    if keyboard.is_pressed(key) and delay_map[key] <= 0:
+        delay_map[key] = KEY_DELAY[key]
+        return True
+    return False
+
 
 gravity_speed = 0.5
 key_delays = {
@@ -159,8 +166,7 @@ while True:
 
         get_next_piece = False
 
-    if keyboard.is_pressed('c') and key_delays['c'] <= 0:
-        key_delays['c'] = DEFAULT_KEY_DELAY
+    if is_key_pressed('c', key_delays):
         draw_piece(shape, PIECES_CHARS[Pieces.EMPTY.value], x, y, mem)
 
         if holding_piece is None:
@@ -184,14 +190,11 @@ while True:
         gravity_timer = 0
         new_y += 1
 
-    if keyboard.is_pressed('down') and key_delays['down'] <= 0:
-        key_delays['down'] = DEFAULT_KEY_DELAY
+    if  is_key_pressed('down', key_delays):
         new_y += 1
         gravity_timer = 0
 
-    if keyboard.is_pressed('space') and key_delays['space'] <= 0:
-        key_delays['space'] = DEFAULT_KEY_DELAY
-
+    if is_key_pressed('space', key_delays):
         draw_piece(shape, PIECES_CHARS[Pieces.EMPTY.value], x, y, mem)
 
         y = get_y_raycast(shape, x, y, mem)
@@ -207,19 +210,15 @@ while True:
     else:
         y = new_y
 
-    if keyboard.is_pressed('right') and key_delays['right'] <= 0:
-        key_delays['right'] = DEFAULT_KEY_DELAY
+    if is_key_pressed('right', key_delays):
         new_x += 1
 
-    if keyboard.is_pressed('left') and key_delays['left'] <= 0:
-        key_delays['left'] = DEFAULT_KEY_DELAY
+    if is_key_pressed('left', key_delays):
         new_x -= 1
 
-    if keyboard.is_pressed('up') and key_delays['up'] <= 0:
-        key_delays['up'] = DEFAULT_KEY_DELAY
+    if is_key_pressed('up', key_delays):
         shape = rotate(shape, SHAPE_BOXES[next_piece.value], new_x, new_y, mem, clock_wise=True)
-    elif keyboard.is_pressed('z') and key_delays['z'] <= 0:
-        key_delays['z'] = DEFAULT_KEY_DELAY
+    elif is_key_pressed('z', key_delays):
         shape = rotate(shape, SHAPE_BOXES[next_piece.value], new_x, new_y, mem, clock_wise=False)
 
     if is_valid_move(shape, new_x, new_y, mem):
