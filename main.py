@@ -3,10 +3,13 @@ import keyboard
 import os
 import random
 import time
+import sys
 from utils import BOARD_WIDTH, BOARD_HEIGHT, HOLDING_PIECE_OFFSET, Pieces, PIECES_CHARS, PIECE_OPTIONS, SHAPES, SHAPE_BOXES, \
                     PREVIEW_PIECE_OFFSET, LEFT_PADDING, KEY_DELAY
 
 mem = [[PIECES_CHARS[Pieces.EMPTY.value] for i in range(BOARD_WIDTH)] for i in range(BOARD_HEIGHT)]
+
+print = sys.stdout.write
 
 def get_random_piece(options):
     selected = random.choice(options)
@@ -31,11 +34,11 @@ def draw_piece(shape, char, x, y, mem):
             mem[target_y][target_x] = char
 
 def posicionar_cursor(linha, coluna):
-    print(f"\033[{linha};{coluna}H", end="")
+    print(f"\033[{linha};{coluna}H")
 
-def draw_standalone_piece(preview_piece, offset):
+def draw_standalone_piece(preview_piece, offset, y_max=4):
     # clear previews preview
-    for y in range(4):
+    for y in range(y_max):
         posicionar_cursor(y + 2, offset)
         print("        ")
 

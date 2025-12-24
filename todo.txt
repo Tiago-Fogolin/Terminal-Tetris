@@ -1,4 +1,2 @@
-# generalizar delay entre teclas, e adicionar um mapeamento de tecla para delay
-#para que possa ser configuravel
 # Pontuação (talvez salvar high score?)
 # Adicionar aquele tempo parado no chão piscando a tecla pra poder fazer t-spins
