@@ -1,2 +1,1 @@
-# Pontuação (talvez salvar high score?)
 # Adicionar aquele tempo parado no chão piscando a tecla pra poder fazer t-spins
